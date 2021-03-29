@@ -2,31 +2,23 @@ package com.genesys.game.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.genesys.game.model.GetState;
-import com.genesys.game.model.Move;
-import com.genesys.game.model.Player;
-import com.genesys.game.service.GameService;
+import com.genesys.game.model.*;
+import com.genesys.game.service.GameExecutionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import java.net.URI;
-import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 
 @Slf4j
 @RestController
 public class GameController {
 
     @Autowired
-    private GameService gameService;
-
-
-    private final int minNumOfPlayers = 2;
+    private GameExecutionService executionService;
 
     @Autowired
     private ObjectMapper mapper;
@@ -53,51 +45,48 @@ public class GameController {
 //        return output;
 //    }
 
-    @PostMapping("/startGame")
-    public ResponseEntity startGame(@RequestBody Player player) throws JsonProcessingException, InterruptedException {
-        List<Player> players = gameService.getPlayers();
+    @PostMapping("/players")
+    @ResponseStatus(HttpStatus.OK)
+    public void addPlayer(@RequestBody Player player) {
+        executionService.addPlayer(player);
+    }
 
-        if(players.size() >= minNumOfPlayers) {
-            return new ResponseEntity(players.get(0).getId(), HttpStatus.CREATED);
+    @PostMapping("/makeMove")
+    public ResponseEntity<Game> makeMove(@RequestBody Move move) throws JsonProcessingException {
+        return new ResponseEntity<>(executionService.handleMove(move), HttpStatus.OK);
+    }
+
+    @PostMapping("/startGame")
+    public ResponseEntity<String> startGame(@RequestBody Player player) throws InterruptedException {
+
+        if(executionService.canGameStart()) {
+            return new ResponseEntity<>(executionService.getPlayerOneId(), HttpStatus.CREATED);
         }
 
         return waitForGameStart(player);
     }
 
-    @PostMapping("/players")
-    public ResponseEntity<List<Player>> addPlayer(@RequestBody Player player) {
-        return ResponseEntity.ok(gameService.addPlayer(player));
-    }
-
-    @PostMapping("/makeMove")
-    public ResponseEntity<List<Move>> makeMove(@RequestBody Move move) throws JsonProcessingException {
-
-        log.info("Make move called with: " + mapper.writeValueAsString(move));
-
-        return new ResponseEntity(gameService.handleMove(move), HttpStatus.ACCEPTED);
-    }
-
     @GetMapping("/getGameState")
-    public ResponseEntity<List<Move>> getGameState(GetState input) throws InterruptedException, JsonProcessingException {
-        log.info("Game state check called with: " + mapper.writeValueAsString(input));
-        if(gameService.isPlayersMove(input.getPlayerId())) {
-            return ResponseEntity.ok(gameService.getMoves());
+    public ResponseEntity<Game> getGameState(@RequestParam String playerId) throws InterruptedException {
+
+        if(executionService.isPlayersMove(playerId)) {
+            return new ResponseEntity<>(executionService.getGame(), HttpStatus.OK);
         }
 
-        return keepPolling(input);
+        return keepPolling(playerId);
     }
 
-    private ResponseEntity<List<Move>> keepPolling(GetState input) throws InterruptedException, JsonProcessingException {
-        log.info("Keep polling called with: " + mapper.writeValueAsString(input));
-        Thread.sleep(3000);
+    private ResponseEntity<Game> keepPolling(String playerId) throws InterruptedException {
+//        log.info("Keep polling called with: " + mapper.writeValueAsString(input));
+        Thread.sleep(1000);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/getGameState?moveId=" + input.getMoveId() + "&playerId=" + input.getPlayerId()));
+        headers.setLocation(URI.create("/getGameState?playerId=" + playerId));
         return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);
     }
 
-    private ResponseEntity waitForGameStart(Player player) throws InterruptedException, JsonProcessingException {
-        log.info("Waiting for game to start with: " + mapper.writeValueAsString(player));
-        Thread.sleep(3000);
+    private ResponseEntity<String> waitForGameStart(Player player) throws InterruptedException {
+//        log.info("Waiting for game to start with: " + mapper.writeValueAsString(player));
+        Thread.sleep(1000);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/startGame"));
         return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);

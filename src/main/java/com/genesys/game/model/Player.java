@@ -8,4 +8,5 @@ import lombok.Setter;
 public class Player {
     private String id;
     private String name;
+    private char symbol;
 }

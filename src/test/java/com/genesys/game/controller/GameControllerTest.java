@@ -58,7 +58,7 @@ class GameControllerTest {
             }
         });
         t1.start();
-        List<Move> response = restTemplate.getForObject(url("/getGameState?moveId=1&playerId=1"), List.class);
+        List<Move> response = restTemplate.getForObject(url("/getPlayState?moveId=1&playerId=1"), List.class);
 
         System.out.println("Response: " + response);
 
