@@ -5,12 +5,11 @@ import com.genesys.game.model.Game;
 import com.genesys.game.model.Move;
 import com.genesys.game.model.Player;
 
+import java.util.Optional;
+
 public interface GameExecutionService {
-    //Game executeGameFunctionality(String playerId);
-    boolean isPlayersMove(String playerId);
-    Game getGame();
-    boolean canGameStart();
-    String getPlayerOneId();
+    Optional<Game> isPlayersMove(String playerId);
+    Optional<Player> canGameStart();
     void addPlayer(Player player);
     Game handleMove(Move move) throws JsonProcessingException;
 }

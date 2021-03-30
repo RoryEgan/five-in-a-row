@@ -1,6 +1,5 @@
 package com.genesys.game.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.genesys.game.exception.ColumnFullException;
 import com.genesys.game.exception.InvalidColumnException;
 import com.genesys.game.model.Game;
@@ -8,10 +7,12 @@ import com.genesys.game.model.Move;
 import com.genesys.game.model.PlayState;
 import com.genesys.game.model.Player;
 import com.genesys.game.service.MoveService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class MoveServiceImpl implements MoveService {
 
@@ -20,9 +21,9 @@ public class MoveServiceImpl implements MoveService {
     private Game game;
 
     @Override
-    public Game handleMove(Move move) throws JsonProcessingException {
+    public Game handleMove(Move move) {
         Player playerWhoMadeMove = getPlayerFromMove(move);
-        validateMove(move, playerWhoMadeMove);
+        performMove(move, playerWhoMadeMove);
 
         List<Move> currentMoves = game.getMoves();
         currentMoves.add(move);
@@ -41,7 +42,7 @@ public class MoveServiceImpl implements MoveService {
     }
 
 
-    private void validateMove(Move move, Player player) throws JsonProcessingException {
+    private void performMove(Move move, Player player) {
 
         int columnNumber = Integer.parseInt(move.getColumnNumber()) - 1;
         if (columnNumber < 0 || columnNumber > 8) {
@@ -131,7 +132,7 @@ public class MoveServiceImpl implements MoveService {
         List<Player> players = game.getPlayers();
 
         return players.stream()
-                .filter(p -> p.getId().equals(playerId))
+                .filter(p -> p.getPlayerId().equals(playerId))
                 .findAny()
                 .orElse(null);
     }

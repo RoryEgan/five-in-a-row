@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Player {
-    private String id;
+    private String playerId;
     private String name;
     private char symbol;
 }
