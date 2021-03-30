@@ -1,4 +1,4 @@
-package unit.com.genesys.game;
+package com.genesys.game;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
