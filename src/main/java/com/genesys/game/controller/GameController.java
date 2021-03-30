@@ -1,6 +1,5 @@
 package com.genesys.game.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.genesys.game.model.*;
 import com.genesys.game.service.GameExecutionService;
@@ -31,7 +30,7 @@ public class GameController {
     }
 
     @PostMapping("/makeMove")
-    public ResponseEntity<Game> makeMove(@RequestBody Move move) throws JsonProcessingException {
+    public ResponseEntity<Game> makeMove(@RequestBody Move move) {
         return new ResponseEntity<>(executionService.handleMove(move), HttpStatus.OK);
     }
 
@@ -59,14 +58,14 @@ public class GameController {
     }
 
     private ResponseEntity<Game> keepPolling(String playerId) throws InterruptedException {
-        Thread.sleep(1000);
+        Thread.sleep(500);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/getGameState?playerId=" + playerId));
         return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);
     }
 
     private ResponseEntity<Player> waitForGameStart(Player player) throws InterruptedException {
-        Thread.sleep(1000);
+        Thread.sleep(500);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/startGame"));
         return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);

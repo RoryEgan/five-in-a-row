@@ -1,6 +1,5 @@
 package com.genesys.game.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.genesys.game.model.Game;
 import com.genesys.game.model.Move;
 import com.genesys.game.model.Player;
@@ -35,12 +34,6 @@ public class GameExecutionServiceImpl implements GameExecutionService {
         playerService.setGame(game);
         moveService.setGame(game);
     }
-
-
-//    @Override
-//    public Game executeGameFunctionality(String playerId) {
-//        return playerService.get
-//    }
 
     @Override
     public Optional<Game> isPlayersMove(String playerId) {
