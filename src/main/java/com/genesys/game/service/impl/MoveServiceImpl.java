@@ -2,12 +2,11 @@ package com.genesys.game.service.impl;
 
 import com.genesys.game.exception.ColumnFullException;
 import com.genesys.game.exception.InvalidColumnException;
-import com.genesys.game.model.Game;
-import com.genesys.game.model.Move;
-import com.genesys.game.model.PlayState;
-import com.genesys.game.model.Player;
+import com.genesys.game.model.*;
+import com.genesys.game.repository.CompletedGameRepository;
 import com.genesys.game.service.MoveService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,8 +1,10 @@
 package com.genesys.game.service.impl;
 
+import com.genesys.game.model.CompletedGame;
 import com.genesys.game.model.Game;
 import com.genesys.game.model.Move;
 import com.genesys.game.model.Player;
+import com.genesys.game.repository.CompletedGameRepository;
 import com.genesys.game.service.PlayerService;
 import com.genesys.game.service.MoveService;
 import com.genesys.game.service.GameExecutionService;
@@ -27,6 +29,9 @@ public class GameExecutionServiceImpl implements GameExecutionService {
     @Autowired
     private Game game;
 
+    @Autowired
+    private CompletedGameRepository gameRepository;
+
     private final int NUM_PLAYERS_REQUIRED = 2;
 
     @PostConstruct
@@ -47,6 +52,8 @@ public class GameExecutionServiceImpl implements GameExecutionService {
     public Optional<Player> canGameStart() {
         List<Player> players = playerService.getPlayers();
         if(players.size() >= NUM_PLAYERS_REQUIRED) {
+            CompletedGame completedGame = new CompletedGame();
+            gameRepository.saveGame(completedGame);
             return Optional.of(players.get(0));
         }
         return Optional.empty();
